@@ -9,7 +9,7 @@
 </Routes>
 ```
 
-- 기존 쓰던 <Switch> 사라지고 <Routes>로 대체
+- 기존 쓰던 Switch 사라지고 Routes로 대체
 - component => element로 변경
 - props도 바로 전달가능하게 변경 (기존에는 콜백함수를 활용했다.)
 - path의 경우 "/"를 생략
@@ -40,7 +40,7 @@
 ```
 
 - index라는 속성은 해당 주소에서 default 컴포넌트.
-- <Outlet />을 활용하여 라우트안에 서브라우트 표시 가능해짐.
+- Outlet을 활용하여 라우트안에 서브라우트 표시 가능해짐.
 
 ```jsx
 import React from "react";
