@@ -1,16 +1,21 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const NavLink = () => {
   const linkData = [
-    { path: "/", name: "home"},
+    { path: "/anywhere", name: "나도 모름"},
     { path: "/search", name: "search"},
-    { path: "/search/more", name: "search more"},
-    { path: "/NotFound", name: "Not Found"},
-  ]
+    { path: "/search/more", name: "search more"}
+  ];
+
+  const navigator = useNavigate()
+  const moveHome = () => {
+    navigator("ㅁㅁㅁ");
+  }
+
   
   return (
-    <header>
+    <>
       <h1>Ranja React-Router-Dom v6 tutorial</h1>
       <ul>
         {
@@ -20,8 +25,9 @@ const NavLink = () => {
             )
           })
         }
+        <li onClick={moveHome}>Home이랑께</li>
       </ul>
-    </header>
+    </>
   );
 };
 

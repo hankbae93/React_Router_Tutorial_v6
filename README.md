@@ -125,3 +125,74 @@ function App() {
 
 export default App;
 ```
+
+## Link
+
+- 기존 Link와 똑같음
+- 해당 주소에서 라우터 훅스없이 상대주소로 이동가능해짐.
+
+```jsx
+{
+  /* 현재 페이지가 /my 라고 하면 아래 링크는 /myinfo로 절대주소 이동함*/
+}
+<Link to="/myinfo">내 정보</Link>;
+
+{
+  /* /my/myinfo로 상대주소 이동가능해짐 */
+}
+<Link to="myinfo">내 정보</Link>;
+```
+
+- useHistory 삭제 후 useNavigate로 대체됨
+- useNavigate 또한 "/"를 제외하면 상대주소로 이동함
+
+```jsx
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+
+const NavBar = () => {
+  const linkData = [
+    { path: "/", name: "home" },
+    { path: "/search", name: "search" },
+    { path: "/search/more", name: "search more" },
+  ];
+
+  const navigator = useNavigate();
+  const moveHome = () => {
+    navigator("/"); // history.push()와 같음
+  };
+
+  return (
+    <>
+      <h1>Ranja React-Router-Dom v6 tutorial</h1>
+      <ul>
+        {linkData.map((data, i) => {
+          return (
+            <li key={i}>
+              <Link to={data.path}>{data.name}</Link>
+            </li>
+          );
+        })}
+        <li onClick={moveHome}>Home이랑께</li>
+      </ul>
+    </>
+  );
+};
+
+export default NavBar;
+```
+
+- NavLink의 activeClassName, activeStyle 사라짐
+
+```jsx
+<NavLink
+  // style={{color: 'blue'}}
+  // activeStyle={{color: 'red'}}
+  style={({ isActive }) => ({ color: isActive ? "red" : "blue" })}
+  // className="nav-primary"
+  // activeClassName="nav-activated"
+  className={({ isActive }) => (isActive ? "nav-primary" : "nav-activated")}
+>
+  집
+</NavLink>
+```
