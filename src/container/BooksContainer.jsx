@@ -1,30 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../api';
+import useGetBook from '../hooks/useGetBook';
 
 import BookList from '../components/bookList/BookList';
+import Filter from '../components/filter';
 
 const BooksContainer = () => {
-  const [list, setList] = useState([]);
-  const [filterd, setFilterd] = useState([]);
-
-  const getBooks = async (query) => {
-    await axios.get(`book?query=${query}&size=${30}&page=${1}`)
-    .then(res => {
-      console.log(res)
-      setList(res.data.documents)
-      setFilterd(res.data.documents)
-    })
-    .catch(err => console.error(err))
-  }
-
-  useEffect(() => {
-    getBooks("미움받을 용기")
-  }, [])
-
-
+  const [list, isFetch, filterd, getBooks, authors] = useGetBook();
   return (
     <div>
-      {/* <Filters /> */}
+      <Filter isFetch={isFetch} getBooks={getBooks} authors={authors}/>
       <BookList list={filterd} />
     </div>
   )

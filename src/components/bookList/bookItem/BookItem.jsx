@@ -24,7 +24,6 @@ const BookItem = ({
 }) => {
   return (
     <Container>
-      
       <BookThumbnail>
         <img src={thumbnail} alt={"/"}/>
         <h2>{title}</h2>
