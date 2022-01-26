@@ -9,7 +9,7 @@ const useInput = (initialValue) => {
 
   const reset = useCallback(() => setValue(initialValue), [])
 
-  return [value, onChange ,reset]
+  return [value, onChange, setValue]
 }
 
 export default useInput;
