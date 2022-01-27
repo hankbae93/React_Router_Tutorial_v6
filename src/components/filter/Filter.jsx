@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import moment from 'moment';
-import useInput from '../../hooks/useInput';
 import queryString from 'query-string';
+import useInput from '../../hooks/useInput';
 
 import {
   Container,
@@ -11,60 +10,123 @@ import {
   CheckBox
 } from './Filter.elements';
 
-const Filter = ({ isFetch, getBooks, authors, adaptFilter, handleCheck, checkedAuthors, setAuthors }) => {
-  const [value, onChange, setValue] = useInput("");
-  const [price, onChangePrice, setPrice] = useInput(0)
-  const [date, onChangeDate, setDate] = useInput( new Date().toISOString().substring(0, 10))
-
-  useEffect(() => {
-    if (value) {
-      getBooks(value)
-    }
-  }, [value])
-
+const Filter = ({ list, getBooks, setFilterd, setAuthorsState }) => {
   const navigate = useNavigate()
+  const location = useLocation();
+  const [query, onChangeQuery, setQuery] = useInput("");
+  const [price, onChangePrice, setPrice] = useInput(0)
+  const [date, onChangeDate, setDate] = useInput(new Date().toISOString().substring(0, 10))
+  const [authors, setAuthors] = useState([]);
+  
+  useEffect(() => {
+    if (query) {
+      getBooks(query); 
+      console.log(authors, "authors")
+    }
+  }, [query])
 
   useEffect(() => {
-    if (value && isFetch) {
-      let urlStrings = `?query=${value}&price=${price}&date=${date}&`;
-      if (checkedAuthors.length > 0) {
-        checkedAuthors.forEach(item => urlStrings += `author=${item}&`)
-      }
-      navigate(urlStrings)
+    if (list.length > 0) {
+      setAuthors(prev => {
+        const authorList = setAuthorsState(list)
+        const qs = queryString.parse(location.search);
+        if (qs.authors) {
+          const qsAuthors = qs.authors.split(",");
+          console.log(qsAuthors, "qsAuthors")
+          console.log(authorList, "authorList")
+          return authorList.map(item => {
+            if (qsAuthors.includes(item.name)) {
+              return {...item, check: true }
+            } else {
+              return item;
+            }
+          })
+        } else {
+          return authorList
+        }
+      })
     }
     
-    adaptFilter({ price, date, authors: checkedAuthors })
-    console.log(value, price, date,)
-  }, [value, price, date, isFetch, checkedAuthors])
-
-  const location = useLocation();
+  }, [list])
 
   useEffect(() => {
-    const querys = location.search || null;
-    if (querys) {
-      const qs = queryString.parse(querys)
-      console.log(qs)
-      setValue(prev => qs.query || prev)
-      setPrice(prev => qs.price || prev);
-      setDate(prev => qs.date || prev)
+    console.log(authors, "AUTHOR")
+  }, [authors])
 
-      if (isFetch && authors) {
-        console.log("여기 실행?")
-        const isArray = Array.isArray(qs.authors);
-        
-      }
+  useEffect(() => {
+    const qs = queryString.parse(location.search);
+    if (qs) {
+      setQuery(qs.query);
+      setPrice(qs.price || 0);
+      setDate(qs.date || new Date().toISOString().substring(0, 10));
+      
     }
-  }, [location, isFetch])
+  }, [location])
 
-  useEffect(() => console.log(authors, "authors"), [authors])
+
+  const filterList = () => {
+    if (!query) return;
+    setFilterd(prev => list.filter((item, i) => {
+        const isPrice = price != 0 ? parseInt(price) > item.sale_price: true;
+        const isDate = new Date(date) > new Date(item.datetime);
+        if (authors.some(el => el.check)) {
+          const checkdAuthors = authors
+            .filter(item => item.check)
+            .map(item => item.name);
+          
+          const isAuthor = checkdAuthors.some(el => item.authors.includes(el));
+          return isPrice && isDate && isAuthor
+        } else {
+          return isPrice && isDate;
+        }
+        // const isAuthor = item.authors()
+        
+    }))
+  }
+
+  const movePage = () => {
+    if (!query) return;
+    const qs = queryString.parse(location.search);
+
+    const checkdAuthors = authors
+    .filter(item => item.check)
+    .map(item => item.name);
+    if (qs.authors.length > 1 && checkdAuthors.length === 0) {
+      return;
+    }
+
+    const obj = {
+      query, price, date, authors: checkdAuthors
+    }
+
+    const URL = new URLSearchParams(obj).toString();
+    navigate("?" + URL)
+  }
+  
+  useEffect(() => {
+    filterList();
+    movePage()
+  }, [query, price, date, authors])
+  
+  const handleCheck = (index) => {
+    setAuthors(prev => prev.map((data, i) => {
+      if (i === index) {
+        return { ...data, check: !data.check }
+      } else {
+        return data
+      }
+    }))
+  }
+
+
 
   return (
     <Container>
       <FilterBox>
         <input 
           placeholder='키워드를 입력해주세요' 
-          value={value} 
-          onChange={onChange} 
+          value={query} 
+          onChange={onChangeQuery} 
         />
       </FilterBox>
 
@@ -87,7 +149,7 @@ const Filter = ({ isFetch, getBooks, authors, adaptFilter, handleCheck, checkedA
         />
       </FilterBox>
 
-      {authors &&
+      {authors.length > 0 &&
         <FilterBox>
           <h3>작가</h3>
           <CheckContainer>
